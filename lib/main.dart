@@ -1,15 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:get/get.dart';
+import 'package:utoolbox/routes/app_pages.dart';
+import 'package:utoolbox/routes/route_path.dart';
 import 'package:utoolbox/widgets/status/app_loadding_widget.dart';
 
 import 'app/app_style.dart';
+import 'app/controller/app_settings_controller.dart';
 import 'app/log.dart';
 import 'app/utils.dart';
 import 'common/core_log.dart';
@@ -70,7 +74,7 @@ Future initServices() async {
   await Get.put(LocalStorageService()).init();
   await Get.put(DBService()).init();
   // //初始化设置控制器
-  // Get.put(AppSettingsController());
+  Get.put(AppSettingsController());
 }
 
 
@@ -84,7 +88,23 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: AppStyle.lightTheme,
       darkTheme: AppStyle.darkTheme,
-      // themeMode: ThemeMode.values[Get.find<AppSettingsController>().themeMode.value],
+      themeMode: ThemeMode.values[Get.find<AppSettingsController>().themeMode.value],
+      initialRoute: RoutePath.kMain,
+      getPages: AppPages.routes,
+
+      //国际化
+      locale: const Locale("zh", "CN"),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale("zh", "CN")],
+      logWriterCallback: (text, {bool? isError}) {
+        Log.addDebugLog(text, (isError ?? false) ? Colors.red : Colors.grey);
+      },
+      //debugShowCheckedModeBanner: false,
+      navigatorObservers: [FlutterSmartDialog.observer],
       builder: FlutterSmartDialog.init(
         loadingBuilder: ((msg) => const AppLoaddingWidget()),
         //字体大小不跟随系统变化
